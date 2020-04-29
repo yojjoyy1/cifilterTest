@@ -11,6 +11,7 @@ import GLKit
 import OpenGLES
 import CoreGraphics
 import CoreImage.CIFilter
+import Photos
 
 extension UIImage {
     func fixOrientation() -> UIImage
@@ -84,6 +85,7 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
     @IBOutlet weak var slider: UISlider!
     @IBOutlet weak var imgV: UIImageView!
     var filter:CIFilter!
+    var imgVLongTap:UILongPressGestureRecognizer!
     lazy var context: CIContext = {
         return CIContext (options:  nil )
     }()
@@ -108,6 +110,10 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         filter = CIFilter(name: "CIHueAdjust" )
         
         filter.setValue (inputImage, forKey:  kCIInputImageKey )
+        
+        imgVLongTap = UILongPressGestureRecognizer(target: self, action: #selector(imgVlongAction(tap:)))
+        imgV.isUserInteractionEnabled = true
+        imgV.addGestureRecognizer(imgVLongTap)
         
 //        showFiltersInConsole ()
     }
@@ -143,6 +149,43 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         } else {
             print("沒有相機鏡頭...") // 用alertView.show
         }
+    }
+    //MARK:自訂方法
+    @objc func imgVlongAction(tap:UILongPressGestureRecognizer)
+    {
+        if tap.state == .began
+        {
+            var myImage:UIImage?
+            myImage = self.imgV.image
+            self.showAlert(title: "儲存到相簿", message: nil, callback: {
+                PHPhotoLibrary.shared().performChanges({
+                    PHAssetChangeRequest.creationRequestForAsset(from: myImage!)
+                }, completionHandler: { (b, err) in
+                    if b
+                    {
+                        self.showAlert(title: "已儲存到相簿", message: nil, callback: nil, cancelBool: false)
+                    }
+                    else
+                    {
+                        self.showAlert(title: "失敗", message: nil, callback: nil, cancelBool: false)
+                    }
+                })
+            }, cancelBool: true)
+        }
+    }
+    func showAlert(title:String,message:String?,callback:(() -> ())?,cancelBool:Bool)
+    {
+        let alertc = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let alertCancel = UIAlertAction(title: "取消", style: .cancel, handler: nil)
+        let alertOK = UIAlertAction(title: "確定", style: .default) { (ok) in
+            callback?()
+        }
+        alertc.addAction(alertOK)
+        if cancelBool
+        {
+            alertc.addAction(alertCancel)
+        }
+        self.present(alertc, animated: true, completion: nil)
     }
     func oldPhoto(img: CIImage, withAmount intensity: Float) {
         let fileURL = Bundle.main.url(forResource: "test", withExtension: "png")
