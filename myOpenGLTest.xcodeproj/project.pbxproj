@@ -14,6 +14,8 @@
 		D74EDDF62458135A00706C76 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D74EDDF42458135A00706C76 /* LaunchScreen.storyboard */; };
 		D74EDDFE2458176A00706C76 /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = D74EDDFD2458176A00706C76 /* test.png */; };
 		D74EDE00245837F700706C76 /* CIColorInvert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74EDDFF245837F700706C76 /* CIColorInvert.swift */; };
+		D74EDE0924597C2D00706C76 /* head2.png in Resources */ = {isa = PBXBuildFile; fileRef = D74EDE0824597C2D00706C76 /* head2.png */; };
+		D74EDE0B24597D4300706C76 /* head3.png in Resources */ = {isa = PBXBuildFile; fileRef = D74EDE0A24597D4300706C76 /* head3.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,9 @@
 		D74EDDF72458135A00706C76 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D74EDDFD2458176A00706C76 /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
 		D74EDDFF245837F700706C76 /* CIColorInvert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIColorInvert.swift; sourceTree = "<group>"; };
+		D74EDE0724597C2600706C76 /* head.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = head.png; sourceTree = "<group>"; };
+		D74EDE0824597C2D00706C76 /* head2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = head2.png; sourceTree = "<group>"; };
+		D74EDE0A24597D4300706C76 /* head3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = head3.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +63,7 @@
 		D74EDDEA2458135700706C76 /* myOpenGLTest */ = {
 			isa = PBXGroup;
 			children = (
-				D74EDDFD2458176A00706C76 /* test.png */,
+				D74EDE0624597C1F00706C76 /* Source */,
 				D74EDDEB2458135700706C76 /* AppDelegate.swift */,
 				D74EDDED2458135700706C76 /* ViewController.swift */,
 				D74EDDFF245837F700706C76 /* CIColorInvert.swift */,
@@ -68,6 +73,17 @@
 				D74EDDF72458135A00706C76 /* Info.plist */,
 			);
 			path = myOpenGLTest;
+			sourceTree = "<group>";
+		};
+		D74EDE0624597C1F00706C76 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				D74EDDFD2458176A00706C76 /* test.png */,
+				D74EDE0724597C2600706C76 /* head.png */,
+				D74EDE0824597C2D00706C76 /* head2.png */,
+				D74EDE0A24597D4300706C76 /* head3.png */,
+			);
+			path = Source;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -129,9 +145,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				D74EDDF62458135A00706C76 /* LaunchScreen.storyboard in Resources */,
+				D74EDE0B24597D4300706C76 /* head3.png in Resources */,
 				D74EDDF32458135A00706C76 /* Assets.xcassets in Resources */,
 				D74EDDF12458135700706C76 /* Main.storyboard in Resources */,
 				D74EDDFE2458176A00706C76 /* test.png in Resources */,
+				D74EDE0924597C2D00706C76 /* head2.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

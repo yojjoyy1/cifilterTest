@@ -80,12 +80,24 @@ extension UIImage {
         return img;
     }
 }
+extension UIView {
+    //将当前视图转为UIImage
+    func asImage() -> UIImage {
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        return renderer.image { rendererContext in
+            layer.render(in: rendererContext.cgContext)
+        }
+    }
+}
 class ViewController: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var slider: UISlider!
     @IBOutlet weak var imgV: UIImageView!
     var filter:CIFilter!
     var imgVLongTap:UILongPressGestureRecognizer!
+    var faceBox:UIView!
+    var faceBoxImageView:UIImageView!
+    var headPictureArray = ["head","head2","head3"]
     lazy var context: CIContext = {
         return CIContext (options:  nil )
     }()
@@ -115,7 +127,9 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         imgV.isUserInteractionEnabled = true
         imgV.addGestureRecognizer(imgVLongTap)
         
-//        showFiltersInConsole ()
+    }
+    override func viewDidLayoutSubviews() {
+        print("viewDidLayoutSubviews")
     }
     @IBAction func filterBtn1(_ sender: UIButton) {
         filterSetImgV(name: "CISepiaTone")
@@ -124,14 +138,7 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         filterSetImgV(name: "CIVignetteEffect")
     }
     @IBAction func filterBtn3(_ sender: UIButton) {
-//        let colorInvertFilter = CIColorInvert()
-//        colorInvertFilter.inputImage = CIImage(image: imgV.image! )
-//
-//        let outputImage = colorInvertFilter.outputImage
-//
-//        let cgImage = context.createCGImage(outputImage!, from: outputImage!.extent)
-//
-//        imgV.image = UIImage(cgImage: cgImage!)
+
         let fileURL = Bundle.main.url(forResource: "test", withExtension: "png")
         // 2.创建CIImage对象
         let beginImage = imgV.image?.cgImage == nil ? CIImage(contentsOf: fileURL!):CIImage(cgImage: (imgV.image?.cgImage)!)
@@ -155,9 +162,16 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
     {
         if tap.state == .began
         {
-            var myImage:UIImage?
-            myImage = self.imgV.image
+            showActionSheet(title: "你要幹嘛啦?", message: "點錯試試看")
+        }
+    }
+    func showActionSheet(title:String,message:String?)
+    {
+        let alertc = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+        let alertDownLoad = UIAlertAction(title: "下載圖片", style: .default) { (downloadAction) in
             self.showAlert(title: "儲存到相簿", message: nil, callback: {
+                var myImage:UIImage?
+                myImage = self.imgV.asImage()
                 PHPhotoLibrary.shared().performChanges({
                     PHAssetChangeRequest.creationRequestForAsset(from: myImage!)
                 }, completionHandler: { (b, err) in
@@ -172,6 +186,14 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
                 })
             }, cancelBool: true)
         }
+        let alertCancel = UIAlertAction(title: "取消", style: .cancel, handler: nil)
+        let alertChangeHead = UIAlertAction(title: "換顆頭", style: .default) { (changeHeadAction) in
+            self.detect()
+        }
+        alertc.addAction(alertChangeHead)
+        alertc.addAction(alertDownLoad)
+        alertc.addAction(alertCancel)
+        self.present(alertc, animated: true, completion: nil)
     }
     func showAlert(title:String,message:String?,callback:(() -> ())?,cancelBool:Bool)
     {
@@ -252,6 +274,67 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         let newImage = UIImage(ciImage: filter.outputImage!)
         self.imgV.image = newImage
     }
+    //人臉辨識
+    func detect() {
+        
+        guard let personciImage = CIImage(image: imgV.image!) else {
+            return
+        }
+        
+        let accuracy = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+        let faceDetector = CIDetector(ofType: CIDetectorTypeFace, context: nil, options: accuracy)
+        let faces = faceDetector!.features(in: personciImage)
+        
+        // For converting the Core Image Coordinates to UIView Coordinates
+        let ciImageSize = personciImage.extent.size
+
+        var transform = CGAffineTransform(scaleX: 1, y: -1)
+        transform = transform.translatedBy(x: 0, y: -ciImageSize.height)
+        
+        for face in faces as! [CIFaceFeature] {
+            
+            print("Found bounds are \(face.bounds)")
+            
+            // Apply the transform to convert the coordinates
+            var faceViewBounds = face.bounds.applying(transform)
+            
+            // Calculate the actual position and size of the rectangle in the image view
+            let viewSize = imgV.bounds.size
+            let scale = min(viewSize.width / ciImageSize.width,
+                            viewSize.height / ciImageSize.height)
+            let offsetX = (viewSize.width - ciImageSize.width * scale) / 2
+            let offsetY = (viewSize.height - ciImageSize.height * scale) / 2
+            
+            faceViewBounds = faceViewBounds.applying(CGAffineTransform(scaleX: scale, y: scale))
+            print("y:\(faceViewBounds.origin.y),offsetY:\(offsetY)")
+            faceViewBounds.origin.x += offsetX
+            faceViewBounds.origin.y += offsetY
+//            faceViewBounds.origin.y = abs(faceViewBounds.origin.y)
+
+            faceBox = UIView(frame: faceViewBounds)
+            faceBoxImageView = UIImageView(frame: faceBox.bounds)
+            faceBoxImageView.image = UIImage(named: "head")
+            faceBoxImageView.contentMode = .scaleToFill
+//            faceBox.layer.borderWidth = 3
+//            faceBox.layer.borderColor = UIColor.red.cgColor
+            faceBox.backgroundColor = UIColor.clear
+            faceBox.addSubview(faceBoxImageView)
+            
+            imgV.addSubview(faceBox)
+            print("faceBox:\(faceBox.frame)")
+            
+            if face.hasSmile {
+                print("face is smiling");
+            }
+            if face.hasLeftEyePosition {
+                print("Left eye bounds are \(face.leftEyePosition)")
+            }
+            if face.hasRightEyePosition {
+                print("Right eye bounds are \(face.rightEyePosition)")
+            }
+            
+        }
+    }
     @IBAction func pickPhotoAction(_ sender: UIButton) {
 //        print("pickPhotoAction")
         let photoController = UIImagePickerController()
@@ -261,6 +344,9 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
     }
     //MARK:ImagePickerDelegate
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if faceBox != nil{
+            faceBox.removeFromSuperview()
+        }
         let image = info[.originalImage] as? UIImage
         imgV.image = image?.fixOrientation()
         filter = CIFilter(name: "CIHueAdjust" )
