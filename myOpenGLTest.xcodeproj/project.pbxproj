@@ -16,6 +16,9 @@
 		D74EDE00245837F700706C76 /* CIColorInvert.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74EDDFF245837F700706C76 /* CIColorInvert.swift */; };
 		D74EDE0924597C2D00706C76 /* head2.png in Resources */ = {isa = PBXBuildFile; fileRef = D74EDE0824597C2D00706C76 /* head2.png */; };
 		D74EDE0B24597D4300706C76 /* head3.png in Resources */ = {isa = PBXBuildFile; fileRef = D74EDE0A24597D4300706C76 /* head3.png */; };
+		D74EDE0D245A938E00706C76 /* HeadPictureAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74EDE0C245A938E00706C76 /* HeadPictureAction.swift */; };
+		D74EDE0F245A94D700706C76 /* DelegateObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74EDE0E245A94D700706C76 /* DelegateObject.swift */; };
+		D74EDE11245AACF900706C76 /* head.png in Resources */ = {isa = PBXBuildFile; fileRef = D74EDE10245AACF900706C76 /* head.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,9 +31,11 @@
 		D74EDDF72458135A00706C76 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D74EDDFD2458176A00706C76 /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
 		D74EDDFF245837F700706C76 /* CIColorInvert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIColorInvert.swift; sourceTree = "<group>"; };
-		D74EDE0724597C2600706C76 /* head.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = head.png; sourceTree = "<group>"; };
 		D74EDE0824597C2D00706C76 /* head2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = head2.png; sourceTree = "<group>"; };
 		D74EDE0A24597D4300706C76 /* head3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = head3.png; sourceTree = "<group>"; };
+		D74EDE0C245A938E00706C76 /* HeadPictureAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadPictureAction.swift; sourceTree = "<group>"; };
+		D74EDE0E245A94D700706C76 /* DelegateObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegateObject.swift; sourceTree = "<group>"; };
+		D74EDE10245AACF900706C76 /* head.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = head.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				D74EDE0624597C1F00706C76 /* Source */,
+				D74EDE0E245A94D700706C76 /* DelegateObject.swift */,
 				D74EDDEB2458135700706C76 /* AppDelegate.swift */,
 				D74EDDED2458135700706C76 /* ViewController.swift */,
 				D74EDDFF245837F700706C76 /* CIColorInvert.swift */,
@@ -71,6 +77,7 @@
 				D74EDDF22458135A00706C76 /* Assets.xcassets */,
 				D74EDDF42458135A00706C76 /* LaunchScreen.storyboard */,
 				D74EDDF72458135A00706C76 /* Info.plist */,
+				D74EDE0C245A938E00706C76 /* HeadPictureAction.swift */,
 			);
 			path = myOpenGLTest;
 			sourceTree = "<group>";
@@ -79,7 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				D74EDDFD2458176A00706C76 /* test.png */,
-				D74EDE0724597C2600706C76 /* head.png */,
+				D74EDE10245AACF900706C76 /* head.png */,
 				D74EDE0824597C2D00706C76 /* head2.png */,
 				D74EDE0A24597D4300706C76 /* head3.png */,
 			);
@@ -148,6 +155,7 @@
 				D74EDE0B24597D4300706C76 /* head3.png in Resources */,
 				D74EDDF32458135A00706C76 /* Assets.xcassets in Resources */,
 				D74EDDF12458135700706C76 /* Main.storyboard in Resources */,
+				D74EDE11245AACF900706C76 /* head.png in Resources */,
 				D74EDDFE2458176A00706C76 /* test.png in Resources */,
 				D74EDE0924597C2D00706C76 /* head2.png in Resources */,
 			);
@@ -162,6 +170,8 @@
 			files = (
 				D74EDDEE2458135700706C76 /* ViewController.swift in Sources */,
 				D74EDDEC2458135700706C76 /* AppDelegate.swift in Sources */,
+				D74EDE0D245A938E00706C76 /* HeadPictureAction.swift in Sources */,
+				D74EDE0F245A94D700706C76 /* DelegateObject.swift in Sources */,
 				D74EDE00245837F700706C76 /* CIColorInvert.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

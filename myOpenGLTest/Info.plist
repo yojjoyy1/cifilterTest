@@ -36,6 +36,8 @@
 	<string>開啟相機</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>開啟相簿</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>人臉辨識</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

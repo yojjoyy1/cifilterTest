@@ -12,6 +12,7 @@ import OpenGLES
 import CoreGraphics
 import CoreImage.CIFilter
 import Photos
+import LocalAuthentication
 
 extension UIImage {
     func fixOrientation() -> UIImage
@@ -89,7 +90,7 @@ extension UIView {
         }
     }
 }
-class ViewController: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ViewController: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate,ChangeHeadPicture {
 
     @IBOutlet weak var slider: UISlider!
     @IBOutlet weak var imgV: UIImageView!
@@ -98,9 +99,12 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
     var faceBox:UIView!
     var faceBoxImageView:UIImageView!
     var headPictureArray = ["head","head2","head3"]
+    var hpa:HeadPictureAction!
+    var headView:UIView!
     lazy var context: CIContext = {
         return CIContext (options:  nil )
     }()
+    var faceIDcontext = LAContext()
     override func viewDidLoad() {
         super.viewDidLoad()
         imgV.layer.shadowOpacity = 0.8
@@ -126,10 +130,13 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         imgVLongTap = UILongPressGestureRecognizer(target: self, action: #selector(imgVlongAction(tap:)))
         imgV.isUserInteractionEnabled = true
         imgV.addGestureRecognizer(imgVLongTap)
+        hpa = HeadPictureAction()
+        hpa.setDelegate(delegate: self)
         
     }
-    override func viewDidLayoutSubviews() {
-        print("viewDidLayoutSubviews")
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+//        checkFace()
     }
     @IBAction func filterBtn1(_ sender: UIButton) {
         filterSetImgV(name: "CISepiaTone")
@@ -188,7 +195,7 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         }
         let alertCancel = UIAlertAction(title: "取消", style: .cancel, handler: nil)
         let alertChangeHead = UIAlertAction(title: "換顆頭", style: .default) { (changeHeadAction) in
-            self.detect()
+            self.hpa.selectPicture()
         }
         alertc.addAction(alertChangeHead)
         alertc.addAction(alertDownLoad)
@@ -274,8 +281,65 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         let newImage = UIImage(ciImage: filter.outputImage!)
         self.imgV.image = newImage
     }
+    //FaceID
+    func checkFace()
+    {
+        faceIDcontext.localizedCancelTitle = "Cancel"
+        // 宣告一個變數接收 canEvaluatePolicy 返回的錯誤
+        var error: NSError?
+        // 評估是否可以針對給定方案進行身份驗證
+        if faceIDcontext.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+            // 描述使用身份辨識的原因
+            let reason = "Log in to your account"
+            // 評估指定方案
+            faceIDcontext.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { (success, error) in
+                if success {
+                    DispatchQueue.main.async { [unowned self] in
+                        self.showAlert(title: "Login Successful", message: error?.localizedDescription, callback: nil, cancelBool: false)
+                    }
+                } else {
+                    DispatchQueue.main.async { [unowned self] in
+                        self.showAlert(title: "Login Failed", message: error?.localizedDescription, callback: nil, cancelBool: false)
+                    }
+                }
+            }
+        } else {
+            self.showAlert(title: "Failed", message: error?.localizedDescription, callback: nil, cancelBool: false)
+        }
+    }
+    //按鈕設定
+    func btnSetInit(btn:UIButton,tag:Int,imgStr:String,selector:Selector)
+    {
+        btn.backgroundColor = .white
+        btn.tag = tag
+        btn.setImage(UIImage(named: imgStr), for: .normal)
+        btn.layer.cornerRadius = btn.frame.size.height * 0.5
+        btn.layer.masksToBounds = true
+        btn.layer.borderColor = UIColor.black.cgColor
+        btn.layer.borderWidth = 1
+        btn.addTarget(self, action: selector, for: .touchUpInside)
+    }
+    //換臉按鈕方法
+    @objc func changeHeadBtnAction(sender:UIButton)
+    {
+        switch sender.tag
+        {
+        case 1:
+            self.detect(img: "head")
+            break
+        case 2:
+            self.detect(img: "head2")
+            break
+        case 3:
+            self.detect(img: "head3")
+            break
+        default:
+            break
+        }
+        headView.removeFromSuperview()
+    }
     //人臉辨識
-    func detect() {
+    func detect(img:String) {
         
         guard let personciImage = CIImage(image: imgV.image!) else {
             return
@@ -311,9 +375,13 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
             faceViewBounds.origin.y += offsetY
 //            faceViewBounds.origin.y = abs(faceViewBounds.origin.y)
 
+            if faceBox != nil
+            {
+                faceBox.removeFromSuperview()
+            }
             faceBox = UIView(frame: faceViewBounds)
             faceBoxImageView = UIImageView(frame: faceBox.bounds)
-            faceBoxImageView.image = UIImage(named: "head")
+            faceBoxImageView.image = UIImage(named: img)
             faceBoxImageView.contentMode = .scaleToFill
 //            faceBox.layer.borderWidth = 3
 //            faceBox.layer.borderColor = UIColor.red.cgColor
@@ -325,6 +393,9 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
             
             if face.hasSmile {
                 print("face is smiling");
+            }
+            if face.hasMouthPosition{
+                print("mouth bounds are \(face.mouthPosition)")
             }
             if face.hasLeftEyePosition {
                 print("Left eye bounds are \(face.leftEyePosition)")
@@ -353,6 +424,39 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
         let inputImage = CIImage(cgImage: (imgV.image?.cgImage)!)
         filter.setValue (inputImage, forKey:  kCIInputImageKey )
         dismiss(animated: true, completion: nil)
+    }
+    //MARK:ChangeHeadPicture delegat
+    func changeHeadAction() {
+        if headView != nil
+        {
+            headView.removeFromSuperview()
+        }
+        headView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        headView.center.y = self.view.center.y
+        headView.center.x = self.view.frame.size.width - (self.view.frame.size.height * 0.1)
+        self.view.addSubview(headView)
+        let btn1 = UIButton(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.height * 0.1, height: self.view.frame.size.width * 0.3))
+        btn1.backgroundColor = .black
+        let btn2 = UIButton(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.height * 0.1, height: self.view.frame.size.width * 0.3))
+        let btn3 = UIButton(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.height * 0.1, height: self.view.frame.size.width * 0.3))
+        btn3.backgroundColor = .black
+        self.headView.addSubview(btn1)
+        self.headView.addSubview(btn2)
+        self.headView.addSubview(btn3)
+        UIView.animate(withDuration: 0.5) {
+            self.headView.frame.size.width = self.view.frame.size.width * 0.3
+            self.headView.frame.size.height = self.view.frame.size.height * 0.3
+            UIView.animate(withDuration: 0.5){
+                btn1.frame.size.height = self.view.frame.size.height * 0.1
+                btn2.frame.origin.y = self.view.frame.size.height * 0.1
+                btn2.frame.size.height = self.view.frame.size.height * 0.1
+                btn3.frame.origin.y = self.view.frame.size.height * 0.2
+                btn3.frame.size.height = self.view.frame.size.height * 0.1
+                self.btnSetInit(btn: btn1, tag: 1, imgStr: "head", selector: #selector(self.changeHeadBtnAction(sender:)))
+                self.btnSetInit(btn: btn2, tag: 2, imgStr: "head2", selector: #selector(self.changeHeadBtnAction(sender:)))
+                self.btnSetInit(btn: btn3, tag: 3, imgStr: "head3", selector: #selector(self.changeHeadBtnAction(sender:)))
+            }
+        }
     }
     
 }
